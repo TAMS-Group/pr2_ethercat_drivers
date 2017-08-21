@@ -35,7 +35,8 @@
 #ifndef ETHERCAT_HARDWARE__WG0X_H
 #define ETHERCAT_HARDWARE__WG0X_H
 
-#include "ethercat_hardware/ethercat_device.h"
+#include "ros_ethercat_hardware/ethercat_device.h"
+#include "pr2_hardware_interface/hardware_interface.h"
 #include "ethercat_hardware/motor_model.h"
 #include "ethercat_hardware/motor_heating_model.h"
 #include "realtime_tools/realtime_publisher.h"
@@ -238,7 +239,7 @@ public:
   WG0X();
   virtual ~WG0X();
 
-  virtual int initialize(pr2_hardware_interface::HardwareInterface *, bool allow_unprogrammed=true);
+  virtual int initialize(hardware_interface::HardwareInterface *, bool allow_unprogrammed=true);
 
   void packCommand(unsigned char *buffer, bool halt, bool reset);
   bool unpackState(unsigned char *this_buffer, unsigned char *prev_buffer);
@@ -333,7 +334,7 @@ protected:
   void publishGeneralDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &d);
   void publishMailboxDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &d);
 
-  bool initializeMotorModel(pr2_hardware_interface::HardwareInterface *hw, 
+  bool initializeMotorModel(hardware_interface::HardwareInterface *hw, 
                             const string &device_description,
                             double max_pwm_ratio, 
                             double board_resistance,

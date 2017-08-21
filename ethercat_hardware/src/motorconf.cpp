@@ -39,11 +39,11 @@
 
 #include <tinyxml.h>
 
-#include <ethercat/ethercat_xenomai_drv.h>
-#include <dll/ethercat_dll.h>
-#include <al/ethercat_AL.h>
-#include <al/ethercat_master.h>
-#include <al/ethercat_slave_handler.h>
+#include <ros_ethercat_eml/ethercat_xenomai_drv.h>
+#include <ros_ethercat_eml/ethercat_dll.h>
+#include <ros_ethercat_eml/ethercat_AL.h>
+#include <ros_ethercat_eml/ethercat_master.h>
+#include <ros_ethercat_eml/ethercat_slave_handler.h>
 
 #include "ethercat_hardware/motor_heating_model.h"
 #include <ethercat_hardware/wg0x.h>

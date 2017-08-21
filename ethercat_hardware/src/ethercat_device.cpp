@@ -36,9 +36,9 @@
 
 #include <tinyxml.h>
 
-#include <dll/ethercat_device_addressed_telegram.h>
-#include <dll/ethercat_logical_addressed_telegram.h>
-#include <dll/ethercat_frame.h>
+#include <ros_ethercat_eml/ethercat_device_addressed_telegram.h>
+#include <ros_ethercat_eml/ethercat_logical_addressed_telegram.h>
+#include <ros_ethercat_eml/ethercat_frame.h>
 
 #include <iomanip>
 
@@ -171,7 +171,7 @@ void EthercatDeviceDiagnostics::collect(EthercatCom *com, EtherCAT_SlaveHandler 
     // If the NPRD has a working counter == 0, but the APRD sees the correct number of devices,
     // then the node has likely been reset.
     // Also, get DL status regiseter with nprd telegram
-    EC_Logic *logic = EC_Logic::instance();
+    EC_Logic *logic = sh->m_logic_instance;
     et1x00_dl_status dl_status;
     NPRD_Telegram nprd_telegram(logic->get_idx(),
                                 sh->get_station_address(),
@@ -181,7 +181,7 @@ void EthercatDeviceDiagnostics::collect(EthercatCom *com, EtherCAT_SlaveHandler 
                                 (unsigned char*) &dl_status);
     // Use positional read to re-count number of devices on chain
     unsigned char buf[1];    
-    EC_UINT address = 0x0000;
+    uint16_t address = 0x0000;
     APRD_Telegram aprd_telegram(logic->get_idx(),  // Index
                                 0,                 // Slave position on ethercat chain (auto increment address) (
                                 address,           // ESC physical memory address (start address) 
@@ -205,7 +205,7 @@ void EthercatDeviceDiagnostics::collect(EthercatCom *com, EtherCAT_SlaveHandler 
     devicesRespondingToNodeAddress_ = nprd_telegram.get_wkc();
     if (devicesRespondingToNodeAddress_ == 0) {
       // Device has not responded to its node address.
-      if (aprd_telegram.get_adp() >= EtherCAT_AL::instance()->get_num_slaves()) {
+      if (aprd_telegram.get_adp() >= sh->m_router_instance->m_al_instance->get_num_slaves()) {
         resetDetected_ = true;
         goto end;
       }
@@ -395,10 +395,10 @@ void EthercatDevice::collectDiagnostics(EthercatCom *com)
 }
 
 
-int EthercatDevice::readWriteData(EthercatCom *com, EtherCAT_SlaveHandler *sh,  EC_UINT address, void* buffer, EC_UINT length, AddrMode addrMode)
+int EthercatDevice::readWriteData(EthercatCom *com, EtherCAT_SlaveHandler *sh,  uint16_t address, void* buffer, uint16_t length, AddrMode addrMode)
 {
   unsigned char *p = (unsigned char *)buffer;
-  EC_Logic *logic = EC_Logic::instance();
+  EC_Logic *logic = sh->m_logic_instance;
   
   NPRW_Telegram nprw_telegram(logic->get_idx(),
                               sh->get_station_address(),
@@ -442,10 +442,10 @@ int EthercatDevice::readWriteData(EthercatCom *com, EtherCAT_SlaveHandler *sh,  
 }
 
 
-int EthercatDevice::readData(EthercatCom *com, EtherCAT_SlaveHandler *sh,  EC_UINT address, void* buffer, EC_UINT length, AddrMode addrMode)
+int EthercatDevice::readData(EthercatCom *com, EtherCAT_SlaveHandler *sh,  uint16_t address, void* buffer, uint16_t length, AddrMode addrMode)
 {
   unsigned char *p = (unsigned char *)buffer;
-  EC_Logic *logic = EC_Logic::instance();
+  EC_Logic *logic = sh->m_logic_instance;
   
   NPRD_Telegram nprd_telegram(logic->get_idx(),
                               sh->get_station_address(),
@@ -489,10 +489,10 @@ int EthercatDevice::readData(EthercatCom *com, EtherCAT_SlaveHandler *sh,  EC_UI
 }
 
 
-int EthercatDevice::writeData(EthercatCom *com, EtherCAT_SlaveHandler *sh,  EC_UINT address, void const* buffer, EC_UINT length, AddrMode addrMode)
+int EthercatDevice::writeData(EthercatCom *com, EtherCAT_SlaveHandler *sh,  uint16_t address, void const* buffer, uint16_t length, AddrMode addrMode)
 {
   unsigned char const *p = (unsigned char const*)buffer;
-  EC_Logic *logic = EC_Logic::instance();
+  EC_Logic *logic = sh->m_logic_instance;
 
   NPWR_Telegram npwr_telegram(logic->get_idx(),
                               sh->get_station_address(),

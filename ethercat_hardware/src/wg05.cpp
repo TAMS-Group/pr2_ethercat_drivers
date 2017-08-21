@@ -39,10 +39,10 @@
 
 #include <ethercat_hardware/wg05.h>
 
-#include <dll/ethercat_dll.h>
-#include <al/ethercat_AL.h>
-#include <dll/ethercat_device_addressed_telegram.h>
-#include <dll/ethercat_frame.h>
+#include <ros_ethercat_eml/ethercat_dll.h>
+#include <ros_ethercat_eml/ethercat_AL.h>
+#include <ros_ethercat_eml/ethercat_device_addressed_telegram.h>
+#include <ros_ethercat_eml/ethercat_frame.h>
 
 #include <boost/crc.hpp>
 #include <boost/static_assert.hpp>
@@ -113,7 +113,7 @@ void WG05::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 }
 
 
-int WG05::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
+int WG05::initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
 {
   if ((fw_major_ == 1) && (fw_minor_ >= 21)) 
   {
@@ -122,7 +122,7 @@ int WG05::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_u
 
   int retval = WG0X::initialize(hw, allow_unprogrammed);
 
-  EthercatDirectCom com(EtherCAT_DataLinkLayer::instance());
+  EthercatDirectCom com(sh_->m_router_instance->m_al_instance->m_dll_instance);
 
   // Determine if device supports application RAM
   if (!retval)

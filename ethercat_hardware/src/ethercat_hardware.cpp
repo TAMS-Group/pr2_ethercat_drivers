@@ -34,9 +34,9 @@
 
 #include "ethercat_hardware/ethercat_hardware.h"
 
-#include <ethercat/ethercat_xenomai_drv.h>
-#include <dll/ethercat_dll.h>
-#include <dll/ethercat_device_addressed_telegram.h>
+#include <ros_ethercat_eml/ethercat_xenomai_drv.h>
+#include <ros_ethercat_eml/ethercat_dll.h>
+#include <ros_ethercat_eml/ethercat_device_addressed_telegram.h>
 
 #include <sstream>
 
@@ -921,9 +921,9 @@ void EthercatHardware::collectDiagnostics()
     return;
 
   { // Count number of devices 
-    EC_Logic *logic = EC_Logic::instance();
+    EC_Logic *logic = sh_->m_logic_instance;
     unsigned char p[1];
-    EC_UINT length = sizeof(p);
+    uint16_t length = sizeof(p);
     
     // Build read telegram, use slave position
     APRD_Telegram status(logic->get_idx(), // Index

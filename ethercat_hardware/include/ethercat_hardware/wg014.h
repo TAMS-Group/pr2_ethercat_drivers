@@ -35,14 +35,14 @@
 #ifndef WG014_H
 #define WG014_H
 
-#include <ethercat_hardware/ethercat_device.h>
+#include <ros_ethercat_hardware/ethercat_device.h>
 
 class WG014 : public EthercatDevice
 {
 public:
   void construct(EtherCAT_SlaveHandler *sh, int &start_address);
   ~WG014();
-  int initialize(pr2_hardware_interface::HardwareInterface *, bool);
+  int initialize(hardware_interface::HardwareInterface *, bool);
   void diagnostics(diagnostic_updater::DiagnosticStatusWrapper &d, unsigned char *);
 
   enum {PRODUCT_CODE = 6805014};

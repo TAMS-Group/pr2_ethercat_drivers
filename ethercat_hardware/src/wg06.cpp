@@ -39,10 +39,10 @@
 
 #include <ethercat_hardware/wg06.h>
 
-#include <dll/ethercat_dll.h>
-#include <al/ethercat_AL.h>
-#include <dll/ethercat_device_addressed_telegram.h>
-#include <dll/ethercat_frame.h>
+#include <ros_ethercat_eml/ethercat_dll.h>
+#include <ros_ethercat_eml/ethercat_AL.h>
+#include <ros_ethercat_eml/ethercat_device_addressed_telegram.h>
+#include <ros_ethercat_eml/ethercat_frame.h>
 
 #include <boost/static_assert.hpp>
 
@@ -198,7 +198,7 @@ void WG06::construct(EtherCAT_SlaveHandler *sh, int &start_address)
 }
 
 
-int WG06::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
+int WG06::initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
 {
   if ( ((fw_major_ == 1) && (fw_minor_ >= 1))  ||  (fw_major_ >= 2) )
   {
@@ -246,7 +246,7 @@ int WG06::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_u
       uint8_t pressure_ft_enable = 0;
       if (enable_pressure_sensor_) pressure_ft_enable |= PRESSURE_ENABLE_FLAG;
       if (enable_ft_sensor_) pressure_ft_enable |= FT_ENABLE_FLAG;
-      EthercatDirectCom com(EtherCAT_DataLinkLayer::instance());
+      EthercatDirectCom com(sh_->m_router_instance->m_al_instance->m_dll_instance);
       if (writeMailbox(&com, PRESSURE_FT_ENABLE_ADDR, &pressure_ft_enable, 1) != 0)
       {
         ROS_FATAL("Could not enable/disable pressure and force/torque sensors");
@@ -295,7 +295,7 @@ int WG06::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_u
 }
 
 
-bool WG06::initializePressure(pr2_hardware_interface::HardwareInterface *hw)
+bool WG06::initializePressure(hardware_interface::HardwareInterface *hw)
 {
   // Publish pressure sensor data as a ROS topic
   string topic = "pressure";
@@ -308,18 +308,18 @@ bool WG06::initializePressure(pr2_hardware_interface::HardwareInterface *hw)
   {
     pressure_sensors_[i].state_.data_.resize(22);
     pressure_sensors_[i].name_ = string(actuator_info_.name_) + string(i ? "r_finger_tip" : "l_finger_tip");
-    if (hw && !hw->addPressureSensor(&pressure_sensors_[i]))
-    {
-      ROS_FATAL("A pressure sensor of the name '%s' already exists.  Device #%02d has a duplicate name", pressure_sensors_[i].name_.c_str(), sh_->get_ring_position());
-      return false;
-    }
+    //if (hw && !hw->addPressureSensor(&pressure_sensors_[i]))
+    //{
+    //  ROS_FATAL("A pressure sensor of the name '%s' already exists.  Device #%02d has a duplicate name", pressure_sensors_[i].name_.c_str(), sh_->get_ring_position());
+    //  return false;
+    //}
   }
 
   return true;
 }
 
 
-bool WG06::initializeAccel(pr2_hardware_interface::HardwareInterface *hw)
+bool WG06::initializeAccel(hardware_interface::HardwareInterface *hw)
 {
   string topic = "accelerometer";
   if (!actuator_.name_.empty())
@@ -330,24 +330,24 @@ bool WG06::initializeAccel(pr2_hardware_interface::HardwareInterface *hw)
   
   // Register accelerometer with pr2_hardware_interface::HardwareInterface
   accelerometer_.name_ = actuator_info_.name_;
-  if (hw && !hw->addAccelerometer(&accelerometer_))
-  {
-    ROS_FATAL("An accelerometer of the name '%s' already exists.  Device #%02d has a duplicate name", accelerometer_.name_.c_str(), sh_->get_ring_position());
-    return false;
-  }
+  //if (hw && !hw->addAccelerometer(&accelerometer_))
+  //{
+  //  ROS_FATAL("An accelerometer of the name '%s' already exists.  Device #%02d has a duplicate name", accelerometer_.name_.c_str(), sh_->get_ring_position());
+  //  return false;
+  //}
   return true;
 }
 
 
-bool WG06::initializeFT(pr2_hardware_interface::HardwareInterface *hw)
+bool WG06::initializeFT(hardware_interface::HardwareInterface *hw)
 {
   ft_raw_analog_in_.name_ = actuator_.name_ + "_ft_raw";
-  if (hw && !hw->addAnalogIn(&ft_raw_analog_in_))
-  {
-    ROS_FATAL("An analog in of the name '%s' already exists.  Device #%02d has a duplicate name",
-              ft_raw_analog_in_.name_.c_str(), sh_->get_ring_position());
-    return false;
-  }
+  //if (hw && !hw->addAnalogIn(&ft_raw_analog_in_))
+  //{
+  //  ROS_FATAL("An analog in of the name '%s' already exists.  Device #%02d has a duplicate name",
+  //            ft_raw_analog_in_.name_.c_str(), sh_->get_ring_position());
+  //  return false;
+  //}
 
   // FT provides 6 values : 3 Forces + 3 Torques
   ft_raw_analog_in_.state_.state_.resize(6); 
@@ -393,11 +393,11 @@ bool WG06::initializeFT(pr2_hardware_interface::HardwareInterface *hw)
 
       // Register force/torque sensor with pr2_hardware_interface::HardwareInterface
       force_torque_.name_ = actuator_.name_;
-      if (hw && !hw->addForceTorque(&force_torque_))
-      {
-        ROS_FATAL("A force/torque sensor of the name '%s' already exists.  Device #%02d has a duplicate name", force_torque_.name_.c_str(), sh_->get_ring_position());
-        return false;
-      }
+      //if (hw && !hw->addForceTorque(&force_torque_))
+      //{
+      //  ROS_FATAL("A force/torque sensor of the name '%s' already exists.  Device #%02d has a duplicate name", force_torque_.name_.c_str(), sh_->get_ring_position());
+      //  return false;
+      //}
     }
   }
 
@@ -409,14 +409,14 @@ bool WG06::initializeSoftProcessor()
 {
   // TODO: do not use direct access to device.  Not safe while realtime loop is running
   // ALSO, this leaks memory
-  EthercatDirectCom *com = new EthercatDirectCom(EtherCAT_DataLinkLayer::instance());
+  EthercatDirectCom com(sh_->m_router_instance->m_al_instance->m_dll_instance);
 
   // Add soft-processors to list
   soft_processor_.add(&mailbox_, actuator_.name_, "pressure", 0xA000, 0x249);
   soft_processor_.add(&mailbox_, actuator_.name_, "accel", 0xB000, 0x24A);
 
   // Start services
-  if (!soft_processor_.initialize(com))
+  if (!soft_processor_.initialize(&com))
   {
     return false;
   }

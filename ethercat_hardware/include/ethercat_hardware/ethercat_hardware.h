@@ -37,9 +37,9 @@
 
 #include <pr2_hardware_interface/hardware_interface.h>
 
-#include <al/ethercat_AL.h>
-#include <al/ethercat_master.h>
-#include <al/ethercat_slave_handler.h>
+#include <ros_ethercat_eml/ethercat_AL.h>
+#include <ros_ethercat_eml/ethercat_master.h>
+#include <ros_ethercat_eml/ethercat_slave_handler.h>
 
 #include "ethercat_hardware/ethercat_device.h"
 #include "ethercat_hardware/ethercat_com.h"

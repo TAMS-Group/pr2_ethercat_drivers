@@ -87,7 +87,7 @@ class WG021 : public WG0X
 public:
   WG021() : projector_(digital_out_A_, digital_out_B_, digital_out_I_, digital_out_M_, digital_out_L0_, digital_out_L1_) {}
   void construct(EtherCAT_SlaveHandler *sh, int &start_address);
-  int initialize(pr2_hardware_interface::HardwareInterface *, bool allow_unprogrammed=true);
+  int initialize(hardware_interface::HardwareInterface *, bool allow_unprogrammed=true);
   void packCommand(unsigned char *buffer, bool halt, bool reset);
   bool unpackState(unsigned char *this_buffer, unsigned char *prev_buffer);
   void diagnostics(diagnostic_updater::DiagnosticStatusWrapper &d, unsigned char *);

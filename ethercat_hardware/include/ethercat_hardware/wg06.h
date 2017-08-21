@@ -165,7 +165,7 @@ class WG06 : public WG0X
 public:
   WG06();
   ~WG06();
-  int initialize(pr2_hardware_interface::HardwareInterface *, bool allow_unprogrammed=true);
+  int initialize(hardware_interface::HardwareInterface *, bool allow_unprogrammed=true);
   void construct(EtherCAT_SlaveHandler *sh, int &start_address);
   void packCommand(unsigned char *buffer, bool halt, bool reset);
   bool unpackState(unsigned char *this_buffer, unsigned char *prev_buffer);
@@ -183,9 +183,9 @@ private:
   pr2_hardware_interface::PressureSensor pressure_sensors_[2];
   pr2_hardware_interface::Accelerometer accelerometer_;
 
-  bool initializePressure(pr2_hardware_interface::HardwareInterface *hw);
-  bool initializeAccel(pr2_hardware_interface::HardwareInterface *hw);
-  bool initializeFT(pr2_hardware_interface::HardwareInterface *hw);
+  bool initializePressure(hardware_interface::HardwareInterface *hw);
+  bool initializeAccel(hardware_interface::HardwareInterface *hw);
+  bool initializeFT(hardware_interface::HardwareInterface *hw);
   bool initializeSoftProcessor();
 
   bool unpackPressure(unsigned char* pressure_buf);

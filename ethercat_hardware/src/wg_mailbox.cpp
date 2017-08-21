@@ -34,7 +34,7 @@
 
 #include "ethercat_hardware/wg_mailbox.h"
 #include "ethercat_hardware/wg_util.h"
-#include "dll/ethercat_device_addressed_telegram.h"
+#include "ros_ethercat_eml/ethercat_device_addressed_telegram.h"
 #include "ethercat_hardware/ethercat_device.h"
 
 namespace ethercat_hardware
@@ -241,6 +241,7 @@ bool WGMailbox::initialize(EtherCAT_SlaveHandler *sh)
 
 bool WGMailbox::verifyDeviceStateForMailboxOperation()
 {
+  return true;
   // Make sure slave is in correct state to do use mailbox
   EC_State state = sh_->get_state();
   if ((state != EC_SAFEOP_STATE) && (state != EC_OP_STATE)) {
@@ -280,8 +281,8 @@ bool WGMailbox::clearReadMailbox(EthercatCom *com)
     return false;
   }
 
-  EC_Logic *logic = EC_Logic::instance();    
-  EC_UINT station_addr = sh_->get_station_address();  
+  EC_Logic *logic = sh_->m_logic_instance;
+  uint16_t station_addr = sh_->get_station_address();  
   
   // Create Ethernet packet with two EtherCAT telegrams inside of it : 
   //  - One telegram to read first byte of mailbox
@@ -475,8 +476,8 @@ bool WGMailbox::writeMailboxInternal(EthercatCom *com, void const *data, unsigne
     return false;
   }
 
-  EC_Logic *logic = EC_Logic::instance();    
-  EC_UINT station_addr = sh_->get_station_address();
+  EC_Logic *logic = sh_->m_logic_instance;
+  uint16_t station_addr = sh_->get_station_address();
   
 
   // If there enough savings, split mailbox write up into 2 parts : 
@@ -693,8 +694,8 @@ bool WGMailbox::readMailboxInternal(EthercatCom *com, void *data, unsigned lengt
     return false;
   }
     
-  EC_Logic *logic = EC_Logic::instance();    
-  EC_UINT station_addr = sh_->get_station_address();
+  EC_Logic *logic = sh_->m_logic_instance;
+  uint16_t station_addr = sh_->get_station_address();
 
 
   // If read is small enough :

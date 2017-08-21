@@ -39,10 +39,10 @@
 
 #include <ethercat_hardware/wg0x.h>
 
-#include <dll/ethercat_dll.h>
-#include <al/ethercat_AL.h>
-#include <dll/ethercat_device_addressed_telegram.h>
-#include <dll/ethercat_frame.h>
+#include <ros_ethercat_eml/ethercat_dll.h>
+#include <ros_ethercat_eml/ethercat_AL.h>
+#include <ros_ethercat_eml/ethercat_device_addressed_telegram.h>
+#include <ros_ethercat_eml/ethercat_frame.h>
 
 #include <boost/crc.hpp>
 #include <boost/static_assert.hpp>
@@ -234,7 +234,7 @@ void WG0X::copyActuatorInfo(ethercat_hardware::ActuatorInfo &out,  const WG0XAct
 
 /**  \brief Allocates and initialized motor trace for WG0X devices than use it (WG006, WG005)
  */
-bool WG0X::initializeMotorModel(pr2_hardware_interface::HardwareInterface *hw, 
+bool WG0X::initializeMotorModel(hardware_interface::HardwareInterface *hw, 
                                 const string &device_description,
                                 double max_pwm_ratio, 
                                 double board_resistance,
@@ -270,10 +270,10 @@ bool WG0X::initializeMotorModel(pr2_hardware_interface::HardwareInterface *hw,
   publish_motor_trace_.name_ = string(actuator_info_.name_) + "_publish_motor_trace";
   publish_motor_trace_.command_.data_ = 0;
   publish_motor_trace_.state_.data_ = 0;
-  if (!hw->addDigitalOut(&publish_motor_trace_)) {
-    ROS_FATAL("A digital out of the name '%s' already exists", publish_motor_trace_.name_.c_str());
-    return false;
-  }
+  //if (!hw->addDigitalOut(&publish_motor_trace_)) {
+  //  ROS_FATAL("A digital out of the name '%s' already exists", publish_motor_trace_.name_.c_str());
+  //  return false;
+  //}
 
   // When working with experimental setups we don't want motor model to halt motors when it detects a problem.
   // Allow rosparam to disable motor model halting for a specific motor.
@@ -295,7 +295,7 @@ boost::shared_ptr<ethercat_hardware::MotorHeatingModelCommon> WG0X::motor_heatin
 bool WG0X::initializeMotorHeatingModel(bool allow_unprogrammed)
 {
 
-  EthercatDirectCom com(EtherCAT_DataLinkLayer::instance());
+  EthercatDirectCom com(sh_->m_router_instance->m_al_instance->m_dll_instance);
   ethercat_hardware::MotorHeatingModelParametersEepromConfig config;
   if (!readMotorHeatingModelParametersFromEeprom(&com, config))
   {
@@ -391,7 +391,7 @@ bool WG0X::initializeMotorHeatingModel(bool allow_unprogrammed)
 }
 
 
-int WG0X::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
+int WG0X::initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
 {
   ROS_DEBUG("Device #%02d: WG0%d (%#08x) Firmware Revision %d.%02d, PCB Revision %c.%02d, Serial #: %d", 
             sh_->get_ring_position(),
@@ -400,7 +400,7 @@ int WG0X::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_u
             'A' + board_major_, board_minor_,
             sh_->get_serial());
 
-  EthercatDirectCom com(EtherCAT_DataLinkLayer::instance());
+  EthercatDirectCom com(sh_->m_router_instance->m_al_instance->m_dll_instance);
 
   mailbox_.initialize(sh_);
 
@@ -464,21 +464,21 @@ int WG0X::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_u
     if (!isWG021)
     {
       // Register actuator with pr2_hardware_interface::HardwareInterface
-      if (hw && !hw->addActuator(&actuator_))
-      {
-          ROS_FATAL("An actuator of the name '%s' already exists.  Device #%02d has a duplicate name", actuator_.name_.c_str(), sh_->get_ring_position());
-          return -1;
-      }
+      //if (hw && !hw->addActuator(&actuator_))
+      //{
+      //    ROS_FATAL("An actuator of the name '%s' already exists.  Device #%02d has a duplicate name", actuator_.name_.c_str(), sh_->get_ring_position());
+      //    return -1;
+      //}
 
     }
 
     // Register digital out with pr2_hardware_interface::HardwareInterface
     digital_out_.name_ = actuator_info_.name_;
-    if (hw && !hw->addDigitalOut(&digital_out_))
-    {
-        ROS_FATAL("A digital out of the name '%s' already exists.  Device #%02d has a duplicate name", digital_out_.name_.c_str(), sh_->get_ring_position());
-        return -1;
-    }
+    //if (hw && !hw->addDigitalOut(&digital_out_))
+    //{
+    //    ROS_FATAL("A digital out of the name '%s' already exists.  Device #%02d has a duplicate name", digital_out_.name_.c_str(), sh_->get_ring_position());
+    //    return -1;
+    //}
 
     // If it is supported, read application ram data.
     if (app_ram_status_ == APP_RAM_PRESENT)
@@ -892,9 +892,9 @@ void WG0X::collectDiagnostics(EthercatCom *com)
   // Send a packet with both a Fixed address read (NPRW) to device to make sure it is present in chain.
   // This avoids wasting time trying to read mailbox of device that it not present on chain.
   {
-    EC_Logic *logic = EC_Logic::instance();
+    EC_Logic *logic = sh_->m_logic_instance;
     unsigned char buf[1];
-    EC_UINT address = 0x0000;
+    uint16_t address = 0x0000;
     NPRD_Telegram nprd_telegram(logic->get_idx(),
                                 sh_->get_station_address(),
                                 address,

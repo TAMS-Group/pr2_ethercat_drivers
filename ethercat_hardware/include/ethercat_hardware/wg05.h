@@ -44,7 +44,7 @@ class WG05 : public WG0X
 {
 public:
   void construct(EtherCAT_SlaveHandler *sh, int &start_address);
-  int initialize(pr2_hardware_interface::HardwareInterface *, bool allow_unprogrammed=true);  
+  int initialize(hardware_interface::HardwareInterface *, bool allow_unprogrammed=true);  
   void packCommand(unsigned char *buffer, bool halt, bool reset);  
   bool unpackState(unsigned char *this_buffer, unsigned char *prev_buffer);
   enum

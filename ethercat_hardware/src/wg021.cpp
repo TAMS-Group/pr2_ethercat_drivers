@@ -39,10 +39,10 @@
 
 #include <ethercat_hardware/wg021.h>
 
-#include <dll/ethercat_dll.h>
-#include <al/ethercat_AL.h>
-#include <dll/ethercat_device_addressed_telegram.h>
-#include <dll/ethercat_frame.h>
+#include <ros_ethercat_eml/ethercat_dll.h>
+#include <ros_ethercat_eml/ethercat_AL.h>
+#include <ros_ethercat_eml/ethercat_device_addressed_telegram.h>
+#include <ros_ethercat_eml/ethercat_frame.h>
 
 #include <boost/crc.hpp>
 #include <boost/static_assert.hpp>
@@ -112,7 +112,7 @@ void WG021::construct(EtherCAT_SlaveHandler *sh, int &start_address)
   sh->set_pd_config(pd);
 }
 
-int WG021::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
+int WG021::initialize(hardware_interface::HardwareInterface *hw, bool allow_unprogrammed)
 {
   // WG021 has no use for application ram
   app_ram_status_ = APP_RAM_NOT_APPLICABLE;
@@ -135,21 +135,21 @@ int WG021::initialize(pr2_hardware_interface::HardwareInterface *hw, bool allow_
   for (size_t i = 0; i < sizeof(digital_outs)/sizeof(digital_outs[0]); ++i)
   {
     digital_outs[i].d->name_ = string(actuator_info_.name_) + digital_outs[i].name;
-    if (hw && !hw->addDigitalOut(digital_outs[i].d))
-    {
-        ROS_FATAL("A digital out of the name '%s' already exists.  Device #%02d has a duplicate name", digital_outs[i].d->name_.c_str(), sh_->get_ring_position());
-        return -1;
-    }
+    //if (hw && !hw->addDigitalOut(digital_outs[i].d))
+    //{
+    //    ROS_FATAL("A digital out of the name '%s' already exists.  Device #%02d has a duplicate name", digital_outs[i].d->name_.c_str(), sh_->get_ring_position());
+    //    return -1;
+    //}
   }
 
   // Register projector with pr2_hardware_interface::HardwareInterface
   {
     projector_.name_ = actuator_info_.name_;
-    if (hw && !hw->addProjector(&projector_))
-    {
-        ROS_FATAL("A projector of the name '%s' already exists.  Device #%02d has a duplicate name", projector_.name_.c_str(), sh_->get_ring_position());
-        return -1;
-    }
+    //if (hw && !hw->addProjector(&projector_))
+    //{
+    //    ROS_FATAL("A projector of the name '%s' already exists.  Device #%02d has a duplicate name", projector_.name_.c_str(), sh_->get_ring_position());
+    //    return -1;
+    //}
     projector_.command_.enable_ = true;
     projector_.command_.current_ = 0;
   }
